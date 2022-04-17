@@ -220,7 +220,7 @@ write.csv(scenario_compare,"Outputs/space_time_subset_models_updated.csv",row.na
 sp_list<-c("TUVU","MODO","HOSP","OSPR","RTHA",
              "RWBL","PIWO","RBWO","NOFL","EUST","AMCR")
 
-df.sp<-df.sp.p<-as.data.frame(matrix(ncol = 5 , nrow= length(sp_list)))
+df.sp<-df.sp.p<-df.sp.se<-as.data.frame(matrix(ncol = 5 , nrow= length(sp_list)))
 
 colnames(df.sp)<-colnames(df.sp.p)<-names(models3)
 
@@ -230,20 +230,19 @@ row.names(df.sp)<-row.names(df.sp.p)<-sp_list
 
 #How do we report coefficient significance...
 for (i in length(models3)) {
-
-  coefs <- round(models3[[5]][["coefficients"]],3)#need to input models manually
-  coefs <- coefs[names(coefs)%in%sp_list]
-  df.sp[[5]]<-coefs
+  
+  coefs <- as.data.frame(round(coef(summary(models3[[1]])),3))#need to input models manually
+  coefs <- coefs[rownames(coefs)%in%sp_list,]
+  df.sp[,1]<-coefs[,1]
+  df.sp.p[,1]<-coefs[,3]
+  df.sp.se[,1]<-coefs[,2]
   
 }
 write.csv(df.sp,"Outputs/species_coefficients_updated.csv",row.names = T)
 
-for (i in length(models)) {
 
-    p<-round(summary(models[[1]])$coefficients[,4],3)
-    p <- p[names(p)%in%sp_list]
-    df.sp.p[[1]]<-p
-  
-}
 write.csv(df.sp.p,"Outputs/species_coefficients_signif_updated.csv",row.names = T)
+
+
+write.csv(df.sp.se,"Outputs/species_coefficients_sterror_updated.csv",row.names = T)
 
