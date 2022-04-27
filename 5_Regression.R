@@ -70,7 +70,7 @@ VIF(m2)
 
 #species (removing correlated blackbirds and woodpeckers)
 m.s<-(lm(log_saidi~TUVU+MODO+HOSP+OSPR+RTHA+RWBL+RBWO+PIWO+NOFL+EUST+AMCR,data=dp))
-m.s2<-(lmer(log_saidi~TUVU+MODO+HOSP+OSPR+RTHA+RWBL+RBWO+PIWO+NOFL+EUST+AMCR+(1|actual_city_town),#*****UPDATE 11 SPECIES
+m.s2<-(lmer(log_saidi~TUVU+MODO+HOSP+OSPR+RTHA+RWBL+RBWO+PIWO+NOFL+EUST+AMCR+(1|actual_city_town),
          data = dp))
 
 anova(m.s2,m.s)#goodness of fit shows random effect performs better
@@ -81,6 +81,19 @@ m.t2<-lmer(log_saidi~month+year+(1|actual_city_town),data=dp)
 
 anova(m.t2,m.t)
 
+summary(m.st2)
+summary(m.t2)
+#months 5,6, and 10 have significant species interactions.
+#months 6,7,11 have significant relationship with SAIDI
+#create separate variables for these months
+dp<-dp%>%
+  dplyr::mutate(May=ifelse(month==5, 1, 0),
+         Jun = ifelse(month==6, 1, 0),
+         Jul= ifelse(month==7, 1, 0),
+         Oct= ifelse(month==10, 1, 0),
+         Nov= ifelse(month==11, 1, 0))%>%
+  dplyr::mutate(across(c("May","Jun","Jul","Oct","Nov"), as.factor))
+
 #Habitat (Remove forest or developed, correlated. Forest performs better)
 m.h<-lm(log_saidi~Forest+Barren_Land+Open_Water+Grassland,data=dp)
 m.h2<-lmer(log_saidi~Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town),data=dp)
@@ -88,10 +101,33 @@ m.h2<-lmer(log_saidi~Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town
 anova(m.h2,m.h)
 
 #species+time
-m.st<-lm(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
-  (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year,data=dp)
-m.st2<-lmer(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
-           (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year+(1|actual_city_town),data=dp)
+m.st<-lm(log_saidi~(TUVU*May)+(TUVU*Jun)+(TUVU*Jul)+(TUVU*Oct)+(TUVU*Nov)+
+           (MODO*May)+(MODO*Jun)+(MODO*Jul)+(MODO*Oct)+(MODO*Nov)+
+           (HOSP*May)+(HOSP*Jun)+(HOSP*Jul)+(HOSP*Oct)+(HOSP*Nov)+
+           (OSPR*May)+(OSPR*Jun)+(OSPR*Jul)+(OSPR*Oct)+(OSPR*Nov)+
+           (RTHA*May)+(RTHA*Jun)+(RTHA*Jul)+(RTHA*Oct)+(RTHA*Nov)+
+           (RWBL*May)+(RWBL*Jun)+(RWBL*Jul)+(RWBL*Oct)+(RWBL*Nov)+
+           (PIWO*May)+(PIWO*Jun)+(PIWO*Jul)+(PIWO*Oct)+(PIWO*Nov)+
+           (RBWO*May)+(RBWO*Jun)+(RBWO*Jul)+(RBWO*Oct)+(RBWO*Nov)+
+           (NOFL*May)+(NOFL*Jun)+(NOFL*Jul)+(NOFL*Oct)+(NOFL*Nov)+
+           (EUST*May)+(EUST*Jun)+(EUST*Jul)+(EUST*Oct)+(EUST*Nov)+
+           (AMCR*May)+(AMCR*Jun)+(AMCR*Jul)+(AMCR*Oct)+(AMCR*Nov)+
+           year,data=dp)
+
+#m.st2<-lmer(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
+#           (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year+(1|actual_city_town),data=dp)
+m.st2<-lmer(log_saidi~(TUVU*May)+(TUVU*Jun)+(TUVU*Jul)+(TUVU*Oct)+(TUVU*Nov)+
+              (MODO*May)+(MODO*Jun)+(MODO*Jul)+(MODO*Oct)+(MODO*Nov)+
+              (HOSP*May)+(HOSP*Jun)+(HOSP*Jul)+(HOSP*Oct)+(HOSP*Nov)+
+              (OSPR*May)+(OSPR*Jun)+(OSPR*Jul)+(OSPR*Oct)+(OSPR*Nov)+
+              (RTHA*May)+(RTHA*Jun)+(RTHA*Jul)+(RTHA*Oct)+(RTHA*Nov)+
+              (RWBL*May)+(RWBL*Jun)+(RWBL*Jul)+(RWBL*Oct)+(RWBL*Nov)+
+              (PIWO*May)+(PIWO*Jun)+(PIWO*Jul)+(PIWO*Oct)+(PIWO*Nov)+
+              (RBWO*May)+(RBWO*Jun)+(RBWO*Jul)+(RBWO*Oct)+(RBWO*Nov)+
+              (NOFL*May)+(NOFL*Jun)+(NOFL*Jul)+(NOFL*Oct)+(NOFL*Nov)+
+              (EUST*May)+(EUST*Jun)+(EUST*Jul)+(EUST*Oct)+(EUST*Nov)+
+              (AMCR*May)+(AMCR*Jun)+(AMCR*Jul)+(AMCR*Oct)+(AMCR*Nov)+
+              year+(1|actual_city_town),data=dp)
 
 anova(m.st2, m.st)
 
@@ -114,6 +150,9 @@ anova(m.sh2, m.sh)
 #species+habitat+time
 #PIWO has significant habitat interaction
 #EUST,RWBL,RTHA,HOSP have significant month interactions
+m.sth<-lm(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
+               (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+               Barren_Land,data=dp)
 m.sth2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
             (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
             Barren_Land+(1|actual_city_town),data=dp)
