@@ -76,23 +76,11 @@ m.s2<-(lmer(log_saidi~TUVU+MODO+HOSP+OSPR+RTHA+RWBL+RBWO+PIWO+NOFL+EUST+AMCR+(1|
 anova(m.s2,m.s)#goodness of fit shows random effect performs better
 
 #Time (week does best but month is close. Season does poorly.)
-m.t<-lm(log_saidi~month+year,data=dp)
-m.t2<-lmer(log_saidi~month+year+(1|actual_city_town),data=dp)
+m.t<-lm(log_saidi~season+year,data=dp)
+m.t2.mth<-lmer(log_saidi~month+year+(1|actual_city_town),data=dp)
+m.t2<-lmer(log_saidi~season+year+(1|actual_city_town),data=dp)
 
 anova(m.t2,m.t)
-
-summary(m.st2)
-summary(m.t2)
-#months 5,6, and 10 have significant species interactions.
-#months 6,7,11 have significant relationship with SAIDI
-#create separate variables for these months
-dp<-dp%>%
-  dplyr::mutate(May=ifelse(month==5, 1, 0),
-         Jun = ifelse(month==6, 1, 0),
-         Jul= ifelse(month==7, 1, 0),
-         Oct= ifelse(month==10, 1, 0),
-         Nov= ifelse(month==11, 1, 0))%>%
-  dplyr::mutate(across(c("May","Jun","Jul","Oct","Nov"), as.factor))
 
 #Habitat (Remove forest or developed, correlated. Forest performs better)
 m.h<-lm(log_saidi~Forest+Barren_Land+Open_Water+Grassland,data=dp)
@@ -101,33 +89,13 @@ m.h2<-lmer(log_saidi~Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town
 anova(m.h2,m.h)
 
 #species+time
-m.st<-lm(log_saidi~(TUVU*May)+(TUVU*Jun)+(TUVU*Jul)+(TUVU*Oct)+(TUVU*Nov)+
-           (MODO*May)+(MODO*Jun)+(MODO*Jul)+(MODO*Oct)+(MODO*Nov)+
-           (HOSP*May)+(HOSP*Jun)+(HOSP*Jul)+(HOSP*Oct)+(HOSP*Nov)+
-           (OSPR*May)+(OSPR*Jun)+(OSPR*Jul)+(OSPR*Oct)+(OSPR*Nov)+
-           (RTHA*May)+(RTHA*Jun)+(RTHA*Jul)+(RTHA*Oct)+(RTHA*Nov)+
-           (RWBL*May)+(RWBL*Jun)+(RWBL*Jul)+(RWBL*Oct)+(RWBL*Nov)+
-           (PIWO*May)+(PIWO*Jun)+(PIWO*Jul)+(PIWO*Oct)+(PIWO*Nov)+
-           (RBWO*May)+(RBWO*Jun)+(RBWO*Jul)+(RBWO*Oct)+(RBWO*Nov)+
-           (NOFL*May)+(NOFL*Jun)+(NOFL*Jul)+(NOFL*Oct)+(NOFL*Nov)+
-           (EUST*May)+(EUST*Jun)+(EUST*Jul)+(EUST*Oct)+(EUST*Nov)+
-           (AMCR*May)+(AMCR*Jun)+(AMCR*Jul)+(AMCR*Oct)+(AMCR*Nov)+
-           year,data=dp)
+m.st<-lm(log_saidi~(TUVU*season)+(MODO*season)+(HOSP*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
+         (PIWO*season)+(RBWO*season)+(NOFL*season)+(EUST*season)+(AMCR*season)+year,data=dp)
 
-#m.st2<-lmer(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
-#           (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year+(1|actual_city_town),data=dp)
-m.st2<-lmer(log_saidi~(TUVU*May)+(TUVU*Jun)+(TUVU*Jul)+(TUVU*Oct)+(TUVU*Nov)+
-              (MODO*May)+(MODO*Jun)+(MODO*Jul)+(MODO*Oct)+(MODO*Nov)+
-              (HOSP*May)+(HOSP*Jun)+(HOSP*Jul)+(HOSP*Oct)+(HOSP*Nov)+
-              (OSPR*May)+(OSPR*Jun)+(OSPR*Jul)+(OSPR*Oct)+(OSPR*Nov)+
-              (RTHA*May)+(RTHA*Jun)+(RTHA*Jul)+(RTHA*Oct)+(RTHA*Nov)+
-              (RWBL*May)+(RWBL*Jun)+(RWBL*Jul)+(RWBL*Oct)+(RWBL*Nov)+
-              (PIWO*May)+(PIWO*Jun)+(PIWO*Jul)+(PIWO*Oct)+(PIWO*Nov)+
-              (RBWO*May)+(RBWO*Jun)+(RBWO*Jul)+(RBWO*Oct)+(RBWO*Nov)+
-              (NOFL*May)+(NOFL*Jun)+(NOFL*Jul)+(NOFL*Oct)+(NOFL*Nov)+
-              (EUST*May)+(EUST*Jun)+(EUST*Jul)+(EUST*Oct)+(EUST*Nov)+
-              (AMCR*May)+(AMCR*Jun)+(AMCR*Jul)+(AMCR*Oct)+(AMCR*Nov)+
-              year+(1|actual_city_town),data=dp)
+m.st2.mth<-lmer(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
+                   (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year+(1|actual_city_town),data=dp)
+m.st2<-lmer(log_saidi~(TUVU*season)+(MODO*season)+(HOSP*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
+              (PIWO*season)+(RBWO*season)+(NOFL*season)+(EUST*season)+(AMCR*season)+year+(1|actual_city_town),data=dp)
 
 anova(m.st2, m.st)
 
@@ -150,16 +118,20 @@ anova(m.sh2, m.sh)
 #species+habitat+time
 #PIWO has significant habitat interaction
 #EUST,RWBL,RTHA,HOSP have significant month interactions
-m.sth<-lm(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-               (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.sth<-lm(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
+            (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
                Barren_Land,data=dp)
-m.sth2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-            (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
-            Barren_Land+(1|actual_city_town),data=dp)
+m.sth2.mth<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
+               (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+               Barren_Land+(1|actual_city_town),data=dp)
+m.sth2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
+               (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
+               Barren_Land+(1|actual_city_town),data=dp)
 
 #time+habitat 
-m.th<-lm(log_saidi~month+year+Forest+Barren_Land+Open_Water+Grassland,data=dp)
-m.th2<-lmer(log_saidi~month+year+Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town),data=dp)
+m.th<-lm(log_saidi~season+year+Forest+Barren_Land+Open_Water+Grassland,data=dp)
+m.th2.mth<-lmer(log_saidi~month+year+Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town),data=dp)
+m.th2<-lmer(log_saidi~season+year+Forest+Barren_Land+Open_Water+Grassland+(1|actual_city_town),data=dp)
 
 anova(m.th2,m.th)
 
@@ -170,9 +142,8 @@ models <- list(m.s2, m.t2, m.h2, m.st2, m.sh2, m.sth2,
                m.th2)
 
 names(models)<-c('Species','Time','Habitat','Species.Time',
-                 'Species.Habitat', 'Species.Time.Habitat', 
+                 'Species.Habitat', 'Species.Time.Habitat',
                  'Time.Habitat')
-  
 
 var_compare<-compare_performance(models,rank=T)
 
@@ -183,13 +154,13 @@ write.csv(var_compare,"Outputs/predictor_selection_models_updated.csv",row.names
 #2.Compare models using species from distinct spatial and temporal patterns from the PCA
 #RBWO and RTHA represent residents vs OSPR and RWBL who represent summer migrants
 #PIWO and TUVU occupy rural areas vs HOSP and NOFL occupying urban areas
-m.migrant2<-lmer(log_saidi~(RWBL*month)+OSPR+year+
+m.migrant2<-lmer(log_saidi~(RWBL*season)+OSPR+year+
                  Barren_Land+(1|actual_city_town),data=dp)
-m.resident2<-lmer(log_saidi~(RTHA*month)+RBWO+year+
+m.resident2<-lmer(log_saidi~(RTHA*season)+RBWO+year+
                 Barren_Land+(1|actual_city_town),data=dp)
 m.rural2<-lmer(log_saidi~TUVU+(PIWO*Forest)+year+
               Barren_Land+(1|actual_city_town),data=dp)
-m.urban2<-lmer(log_saidi~(HOSP*month)+NOFL+year+
+m.urban2<-lmer(log_saidi~HOSP+(NOFL*season)+year+
               Barren_Land+(1|actual_city_town),data=dp)
 
 
@@ -220,17 +191,17 @@ hist(sth.res)
 
 #3. Compare species*habitat*time models using subsets of data in each season (remove month)
 #and in forest vs developed+barren habitat types (remove habitat)
-m.summer2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-                  (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.summer2<-lmer(log_saidi~TUVU+(MODO*month)+HOSP+OSPR+(RTHA*month)+
+                  (RWBL*month)+(PIWO*Forest)+RBWO+(NOFL*month)+EUST+AMCR+year+
                   Barren_Land+(1|actual_city_town),data=dp%>%filter(season=="summer"))
-m.winter2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-                  (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.winter2<-lmer(log_saidi~TUVU+(MODO*month)+HOSP+OSPR+(RTHA*month)+
+                  (RWBL*month)+(PIWO*Forest)+RBWO+(NOFL*month)+EUST+AMCR+year+
                   Barren_Land+(1|actual_city_town),data=dp%>%filter(season=="winter"))
-m.Forest2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-                  (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.Forest2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
+                  (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
                   Barren_Land+(1|actual_city_town),data=dp%>%filter(Forest>quantile(Forest,0.75)))
-m.Developed2<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-                     (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.Developed2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
+                     (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
                      Barren_Land+(1|actual_city_town),data=dp%>%filter(Developed>quantile(Developed,0.75)))
 
 
@@ -261,20 +232,20 @@ sp_list<-c("TUVU","MODO","HOSP","OSPR","RTHA",
 
 df.sp<-df.sp.p<-df.sp.se<-as.data.frame(matrix(ncol = 5 , nrow= length(sp_list)))
 
-colnames(df.sp)<-colnames(df.sp.p)<-names(models3)
+colnames(df.sp)<-colnames(df.sp.p)<-colnames(df.sp.se)<-names(models3)
 
 
-row.names(df.sp)<-row.names(df.sp.p)<-sp_list
+row.names(df.sp)<-row.names(df.sp.p)<-row.names(df.sp.se)<-sp_list
 
 
 #How do we report coefficient significance...
 for (i in length(models3)) {
   
-  coefs <- as.data.frame(round(coef(summary(models3[[1]])),3))#need to input models manually
+  coefs <- as.data.frame(round(coef(summary(models3[[5]])),3))#need to input models manually
   coefs <- coefs[rownames(coefs)%in%sp_list,]
-  df.sp[,1]<-coefs[,1]
-  df.sp.p[,1]<-coefs[,3]
-  df.sp.se[,1]<-coefs[,2]
+  df.sp[,5]<-coefs[,1]
+  df.sp.p[,5]<-coefs[,3]
+  df.sp.se[,5]<-coefs[,2]
   
 }
 write.csv(df.sp,"Outputs/species_coefficients_updated.csv",row.names = T)
