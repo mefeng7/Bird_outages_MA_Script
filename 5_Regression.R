@@ -66,6 +66,7 @@ VIF(m2)
 #-------------------------------------------------------------------------------------------------
 #Model SAIDI with species DPs, habitat, and time
 
+
 #1. Determine if species, habitat, or time variables are more important
 
 #species (removing correlated blackbirds and woodpeckers)
@@ -92,10 +93,10 @@ anova(m.h2,m.h)
 m.st<-lm(log_saidi~(TUVU*season)+(MODO*season)+(HOSP*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
          (PIWO*season)+(RBWO*season)+(NOFL*season)+(EUST*season)+(AMCR*season)+year,data=dp)
 
-m.st2.mth<-lmer(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*month)+(RWBL*month)+
-                   (PIWO*month)+(RBWO*month)+(NOFL*month)+(EUST*month)+(AMCR*month)+year+(1|actual_city_town),data=dp)
-m.st2<-lmer(log_saidi~(TUVU*season)+(MODO*season)+(HOSP*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
-              (PIWO*season)+(RBWO*season)+(NOFL*season)+(EUST*season)+(AMCR*season)+year+(1|actual_city_town),data=dp)
+m.st2.mth<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
+                  (RWBL*month)+PIWO+RBWO+NOFL+(EUST*month)+AMCR+year+(1|actual_city_town),data=dp)
+m.st2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
+              (RWBL*season)+PIWO+RBWO+(NOFL*season)+EUST+AMCR+year+(1|actual_city_town),data=dp)
 
 anova(m.st2, m.st)
 
@@ -104,12 +105,12 @@ m.sh<-lm(log_saidi~(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+(OSPR*Forest)+
            (RTHA*Forest)+(RWBL*Forest)+
            (PIWO*Forest)+(RBWO*Forest)+
            (NOFL*Forest)+(EUST*Forest)+(AMCR*Forest)+
-           Barren_Land,data=dp)
-m.sh2<-lmer(log_saidi~(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+(OSPR*Forest)+
+           Open_Water+Grassland+Barren_Land,data=dp)
+m.sh2<-lmer(log_saidi~TUVU+(MODO*Forest)+(HOSP*Forest)+OSPR+
               (RTHA*Forest)+(RWBL*Forest)+
-              (PIWO*Forest)+(RBWO*Forest)+
-              (NOFL*Forest)+(EUST*Forest)+(AMCR*Forest)+
-              Barren_Land+(1|actual_city_town),data=dp)
+              (PIWO*Forest)+RBWO+
+              NOFL+(EUST*Forest)+AMCR+
+              Open_Water+Grassland+Barren_Land+(1|actual_city_town),data=dp)
   #model using species* forest habitat interaction performs the best 
   # (Highest R2, lowest RSE)
 
@@ -121,11 +122,11 @@ anova(m.sh2, m.sh)
 m.sth<-lm(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
             (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
                Barren_Land,data=dp)
-m.sth2.mth<-lmer(log_saidi~TUVU+MODO+(HOSP*month)+OSPR+(RTHA*month)+
-               (RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+AMCR+year+
+m.sth2.mth<-lmer(log_saidi~TUVU+(MODO*Forest)+(HOSP*month)+(HOSP*Forest)+OSPR+(RTHA*month)+(RTHA*Forest)+
+                (RWBL*Forest)+(RWBL*month)+(PIWO*Forest)+RBWO+NOFL+(EUST*month)+(EUST*Forest)+AMCR+year+
                Barren_Land+(1|actual_city_town),data=dp)
-m.sth2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
-               (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
+m.sth2<-lmer(log_saidi~TUVU+(MODO*season)+(MODO*Forest)+(HOSP*Forest)+OSPR+(RTHA*season)+(RTHA*Forest)+
+               (RWBL*Forest)+(RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+(EUST*Forest)+AMCR+year+
                Barren_Land+(1|actual_city_town),data=dp)
 
 #time+habitat 
@@ -138,16 +139,18 @@ anova(m.th2,m.th)
 
 
 #Compare model performance in a table
-models <- list(m.s2, m.t2, m.h2, m.st2, m.sh2, m.sth2,
-               m.th2)
+models <- list(m.s2, m.t2, m.t2.mth, m.h2, m.st2, m.st2.mth,m.sh2, m.sth2,m.sth2.mth,
+               m.th2,m.th2.mth)
 
-names(models)<-c('Species','Time','Habitat','Species.Time',
-                 'Species.Habitat', 'Species.Time.Habitat',
-                 'Time.Habitat')
+names(models)<-c('Species','Time (Season)','Time (Month)','Habitat','Species.Time (Season)','Species.Time (Month)',
+                 'Species.Habitat', 'Species.Time (Season).Habitat','Species.Time (Month).Habitat',
+                 'Time (Season).Habitat','Time (Month).Habitat')
+
 
 var_compare<-compare_performance(models,rank=T)
-
-write.csv(var_compare,"Outputs/predictor_selection_models_updated.csv",row.names = F)
+Fixed.Effects<-data.frame(Name=names(models),Fixed.Effects=unlist(lapply(models,function(x){length(fixef(x))})))
+var_compare<-left_join(var_compare,Fixed.Effects,by="Name")
+write.csv(var_compare,"Outputs/predictor_selection_models_monthseason_updated.csv",row.names = F)
 
 
 
@@ -189,6 +192,7 @@ sth.res = resid(m.sth2)
 hist(sth.res)
 
 
+##Don't use model ranking, just compare variance explained R2.
 #3. Compare species*habitat*time models using subsets of data in each season (remove month)
 #and in forest vs developed+barren habitat types (remove habitat)
 m.summer2<-lmer(log_saidi~TUVU+(MODO*month)+HOSP+OSPR+(RTHA*month)+

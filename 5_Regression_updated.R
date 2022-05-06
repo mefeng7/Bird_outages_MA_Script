@@ -16,6 +16,20 @@ dp<-dp_outs_towns%>%
          year=as.factor(year),
          month=as.factor(month))
 
+#Don't use interactions
+#Do models with all species, representative species ( 1 from each of the 3 groups in PC1 and PC2), PC1 and PC2
+
+
+#Use R2 conditional (fixed + random; variation explained by random effect, adjusted for each town), 
+#
+#BIC weight (1 = small delta) as model ranking indices
+
+
+#xtable r package https://cran.r-project.org/web/packages/xtable/vignettes/xtableGallery.pdf 
+#xftbl <- xtableFtable(tbl, method = "compact")
+#                          print.xtableFtable(xftbl, booktabs = TRUE)
+
+
 #-------------------------------------------------------------------------------------------
 #Check for correlation and collinearity between predictors
 #1. Between species
@@ -81,6 +95,13 @@ m.sth1<-lm(log_saidi~(TUVU*month)+(MODO*month)+(HOSP*month)+(OSPR*month)+(RTHA*m
   (NOFL*Forest)+(EUST*Forest)+(AMCR*Forest)+year+
   +Barren_Land+Open_Water+Grassland,data=dp)
 
+m.sth1<-lm(log_saidi~(TUVU*season)+(MODO*season)+(HOSP*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
+             (PIWO*season)+(RBWO*season)+(NOFL*season)+(EUST*season)+(AMCR*season)+(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+(OSPR*Forest)+
+             (RTHA*Forest)+(RWBL*Forest)+
+             (PIWO*Forest)+(RBWO*Forest)+
+             (NOFL*Forest)+(EUST*Forest)+(AMCR*Forest)+year+
+             +Barren_Land+Open_Water+Grassland,data=dp)
+
 summary(m.sth1)
 #Significant predictors:
 #(EUST*Forest)+(NOFL*Forest)+(PIWO*Forest)+(RWBL*Forest)+(RTHA*Forest)+(HOSP*Forest)+(MODO*Forest)+
@@ -92,6 +113,15 @@ m.sth2<-lm(log_saidi~(EUST*Forest)+(NOFL*Forest)+(PIWO*Forest)+(RWBL*Forest)+
              (RTHA*Forest)+(HOSP*Forest)+(MODO*Forest)+(EUST*month)+(NOFL*month)+
              (PIWO*month)+(RWBL*month)+(RTHA*month)+(NOFL*month)+(HOSP*month)+
              Barren_Land,data=dp)
+
+
+m.sth2<-lm(log_saidi~(MODO*season)+(OSPR*season)+(RTHA*season)+(RWBL*season)+
+             (MODO*Forest)+(HOSP*Forest)+
+             (RTHA*Forest)+(RWBL*Forest)+
+             (PIWO*Forest)+EUST+RBWO+
+             (NOFL*Forest)+(EUST*Forest)+year+
+             +Barren_Land,data=dp)
+
 
 summary(m.sth2)
 #Significant predictors:
@@ -106,6 +136,12 @@ m.sth3<-lm(log_saidi~(EUST*Forest)+(NOFL*Forest)+(PIWO*Forest)+(RWBL*Forest)+
              (PIWO*month)+(RWBL*month)+(RTHA*month)+(NOFL*month)+(HOSP*month)+
              Barren_Land,data=dp)
 
+m.sth3<-lm(log_saidi~(MODO*season)+(RTHA*season)+(RWBL*season)+
+             (MODO*Forest)+(HOSP*Forest)+
+             (RTHA*Forest)+(RWBL*Forest)+
+             (PIWO*Forest)+EUST+RBWO+
+             (NOFL*Forest)+(EUST*Forest)+year+
+             +Barren_Land,data=dp)
 summary(m.sth3)
 #Significant predictors:
 #(EUST*Forest)+(NOFL*Forest)+(PIWO*Forest)+(RTHA*Forest)+(HOSP*Forest)+(MODO*Forest)+
@@ -130,22 +166,32 @@ m.sth4.lmer<-lmer(log_saidi~(EUST*Forest)+(NOFL*Forest)+(PIWO*Forest)+
              (PIWO*month)+(RWBL*month)+(RTHA*month)+(NOFL*month)+(HOSP*month)+
              Barren_Land+(1|actual_city_town),data=dp)
 
-anova(m.sth4.lmer,m.sth4)
+m.sth3.lmer<-lmer(log_saidi~(MODO*season)+(RTHA*season)+(RWBL*season)+
+             (MODO*Forest)+(HOSP*Forest)+
+             (RTHA*Forest)+(RWBL*Forest)+
+             (PIWO*Forest)+EUST+RBWO+
+             (NOFL*Forest)+(EUST*Forest)+year+
+             Barren_Land+(1|actual_city_town),data=dp)
+
+anova(m.sth3.lmer,m.sth3)
 #Random effect is significant
 
 
 #Select a Habitat and Time model using backwards selection
 #############################################################
 m.th1<-lm(log_saidi~month+year+Forest+Barren_Land+Open_Water+Grassland,data=dp)
+m.th1<-lm(log_saidi~season+year+Forest+Barren_Land+Open_Water+Grassland,data=dp)
 summary(m.th1)
 #Significant predictors: Barren_Land+Forest+month11+month7+month6 (Open_Water and Grassland get dropped just like the species*hab*time model subsets)
 
 
 m.th2<-lm(log_saidi~month+year+Forest+Barren_Land,data=dp)
+m.th2<-lm(log_saidi~season+year+Forest+Barren_Land,data=dp)
 summary(m.th2)
 
 #Use a mixed model to account for random effect of town
 m.th2.lmer<-lmer(log_saidi~month+year+Forest+Barren_Land+(1|actual_city_town),data=dp)
+m.th22.lmer<-lmer(log_saidi~season+year+Forest+Barren_Land+(1|actual_city_town),data=dp)
 
 anova(m.th2.lmer,m.th2)
 #random effect is significant
@@ -153,9 +199,9 @@ anova(m.th2.lmer,m.th2)
 
 
 #Compare model performance between models with and without species in a table
-models <- list(m.sth4.lmer,m.th2.lmer)
+models <- list(m.sth3.lmer,m.sth4.lmer,m.th2.lmer,m.th22.lmer)
 
-names(models)<-c('Species.Time.Habitat','Time.Habitat')
+names(models)<-c('Species.Time(season).Habitat','Species.Time(month).Habitat','Time(month).Habitat','Time(season).Habitat')
 
 
 var_compare<-compare_performance(models,rank=T)
@@ -204,6 +250,12 @@ write.csv(pattern_compare,"Outputs/species_subset_models_updated.csv",row.names 
 sth.res = resid(m.sth2)
 hist(sth.res)
 
+#Fit 1 model, 
+#make indicator of observations above 75th quantile for habitat
+#mkae indicator of observation just within summer and winter
+#use interactions with each indicator
+
+#summary table is coeff for each species, and then the interaction for each indicator (add species coeff to interaction coeff)
 
 ##Don't use model ranking, just compare variance explained R2.
 #3. Compare species*habitat*time models using subsets of data in each season (remove month)
