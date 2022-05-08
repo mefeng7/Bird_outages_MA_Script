@@ -1,9 +1,5 @@
 library(tidyverse)
 library(patchwork)
-library(officer)
-library(flextable)
-#remotes::install_github("rstudio/webshot2")
-#webshot::install_phantomjs()
 library(xtable)
 
 memory.limit(100000)
@@ -79,25 +75,6 @@ pred_select<-pred_select[c(7,1,2,3,4,5,6)]
 #Print for latex
 print(xtable(pred_select, label='tab:Table2', digits=4), type="latex")
   
-#print as image
-ft<-flextable(pred_select)%>%
-  set_header_labels(Model_Type="Model Hypothesis",
-                    Model="log(SAIDI)~ Model",
-                    R2_conditional="R2 Conditional", 
-                    R2_marginal="R2 Marginal",
-                    ICC="ICC",
-                    AIC_Weight="AIC Weight",
-                    Fixed_Effects="Number of Fixed Effects") %>%
-  fontsize(size=12, part='header') %>%
-  fontsize(size=11, part='body') %>%
-  #font(fontname='Helvetica', part='header') %>%
-  #font(fontname='Helvetica', part='body') %>%
-  align(align="center",part = "all") %>%
-  border_inner_h(border=fp_border(color='#CAD4D1', style='solid', width=0.5)) %>%
-  bg(bg="white",part = "all")
-
-save_as_image(tb2, "Outputs/Table2_updated.png")
-
 
 
 #Table 3.

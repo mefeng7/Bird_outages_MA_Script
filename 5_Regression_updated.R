@@ -21,10 +21,10 @@ dp<-dp_outs_towns%>%
   dplyr::select(-c("Cultivated_Crops", "Shrub_Scrub","county.x","county.y","date","week"))%>%
   #add indicators of spatio-temporal subsets of the data
   #Forested areas, Developed areas, Summer season, Winter Season
-  mutate(Developed=ifelse(Developed>=quantile(Developed,0.75),1,0),
-         Forest=ifelse(Forest>=quantile(Forest,0.75),1,0),
-         Summer=ifelse(season=="summer",1,0),
-         Winter=ifelse(season=="winter",1,0))%>%
+  mutate(Developed.ind=ifelse(Developed>=quantile(Developed,0.75),1,0),
+         Forest.ind=ifelse(Forest>=quantile(Forest,0.75),1,0),
+         Summer.ind=ifelse(season=="summer",1,0),
+         Winter.ind=ifelse(season=="winter",1,0))%>%
   #Select representative species of each spatio-temporal trend
   mutate(Migrant=RWBL,
          Resident=RBWO,#Also no spatial trend group
@@ -105,10 +105,7 @@ summary(lm.th)
 lm.sth<-lm(log_saidi~TUVU+MODO+HOSP+
              OSPR+RTHA+RWBL+
              PIWO+RBWO+NOFL+
-             EUST+AMCR+TUVU+
-             MODO+HOSP+OSPR+
-             RTHA+RWBL+PIWO+
-             RBWO+NOFL+EUST+AMCR+
+             EUST+AMCR+
              year+month+
              Barren_Land+Open_Water+Grassland+Forest,
              data=dp)
@@ -116,10 +113,7 @@ lm.sth<-lm(log_saidi~TUVU+MODO+HOSP+
 lmer.sth<-lmer(log_saidi~TUVU+MODO+HOSP+
                  OSPR+RTHA+RWBL+
                  PIWO+RBWO+NOFL+
-                 EUST+AMCR+TUVU+
-                 MODO+HOSP+OSPR+
-                 RTHA+RWBL+PIWO+
-                 RBWO+NOFL+EUST+AMCR+
+                 EUST+AMCR+
                  year+month+
                  Barren_Land+Open_Water+Grassland+Forest+
                  (1|actual_city_town),
@@ -258,81 +252,38 @@ write.csv(var_compare,"Outputs/predictor_selection_models_updated.csv",row.names
 
 
 
-#Question 3: Does the inclusion of species activity improve SAIDI model performance over using only spatio-temporal trends?
+#Question 3: Do specific species contribute more to AROs in different habitats and seasons?
 #############################################################################################################################
 
 #Fit 1 model, 
-#make indicator of observations above 75th quantile for habitat
-#make indicator of observation just within summer and winter
-#use interactions with each indicator
+#make indicator of observations above 75th quantiles for Forest and developed land cover
+#make indicator of observations within summer and winter seasons
+#report species interactions with each indicator
 
 #summary table is coeff for each species, and then the interaction for each indicator (add species coeff to interaction coeff)
+#Don't use model ranking, just compare variance explained R2.
 
-##Don't use model ranking, just compare variance explained R2.
-#3. Compare species*habitat*time models using subsets of data in each season (remove month)
-#and in forest vs developed+barren habitat types (remove habitat)
-m.summer2<-lmer(log_saidi~TUVU+(MODO*month)+HOSP+OSPR+(RTHA*month)+
-                  (RWBL*month)+(PIWO*Forest)+RBWO+(NOFL*month)+EUST+AMCR+year+
-                  Barren_Land+(1|actual_city_town),data=dp%>%filter(season=="summer"))
-m.winter2<-lmer(log_saidi~TUVU+(MODO*month)+HOSP+OSPR+(RTHA*month)+
-                  (RWBL*month)+(PIWO*Forest)+RBWO+(NOFL*month)+EUST+AMCR+year+
-                  Barren_Land+(1|actual_city_town),data=dp%>%filter(season=="winter"))
-m.Forest2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
-                  (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
-                  Barren_Land+(1|actual_city_town),data=dp%>%filter(Forest>quantile(Forest,0.75)))
-m.Developed2<-lmer(log_saidi~TUVU+(MODO*season)+HOSP+OSPR+(RTHA*season)+
-                     (RWBL*season)+(PIWO*Forest)+RBWO+(NOFL*season)+EUST+AMCR+year+
-                     Barren_Land+(1|actual_city_town),data=dp%>%filter(Developed>quantile(Developed,0.75)))
+indicators<-lmer(log_saidi~(TUVU*Summer.ind)+(TUVU*Winter.ind)+(TUVU*Forest.ind)+(TUVU*Developed.ind)+
+                   (MODO*Summer.ind)+(MODO*Winter.ind)+(MODO*Forest.ind)+(MODO*Developed.ind)+
+                   (HOSP*Summer.ind)+(HOSP*Winter.ind)+(HOSP*Forest.ind)+(HOSP*Developed.ind)+
+                 (OSPR*Summer.ind)+(OSPR*Winter.ind)+(OSPR*Forest.ind)+(OSPR*Developed.ind)+
+                   (RTHA*Summer.ind)+(RTHA*Winter.ind)+(RTHA*Forest.ind)+(RTHA*Developed.ind)+
+                   (RWBL*Summer.ind)+(RWBL*Winter.ind)+(RWBL*Forest.ind)+(RWBL*Developed.ind)+
+                 (PIWO*Summer.ind)+(PIWO*Winter.ind)+(PIWO*Forest.ind)+(PIWO*Developed.ind)+
+                   (RBWO*Summer.ind)+(RBWO*Winter.ind)+(RBWO*Forest.ind)+(RBWO*Developed.ind)+
+                   (NOFL*Summer.ind)+(NOFL*Winter.ind)+(NOFL*Forest.ind)+(NOFL*Developed.ind)+
+                 (EUST*Summer.ind)+(EUST*Winter.ind)+(EUST*Forest.ind)+(EUST*Developed.ind)+
+                   (AMCR*Summer.ind)+(AMCR*Winter.ind)+(AMCR*Forest.ind)+(AMCR*Developed.ind)+
+                 year+month+
+                 Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+               data=dp)
 
+summary(indicators)
+#Make table of significant species interaction coefficients
 
-#Compare model performance in a table
-#define list of models
-models3 <- list(m.sth2,m.summer2,m.winter2,m.Forest2, m.Developed2)
-
-#specify model names
-names(models3) <- c('All.Space.Time',
-                    'Summer', 
-                    'Winter', 
-                    'Forested',
-                    'Developed')
-
-scenario_compare<-compare_performance(models3,rank=T)
-
-
-
-write.csv(scenario_compare,"Outputs/space_time_subset_models_updated.csv",row.names = F)
-#Note models were fit from different data...
-
-
-
-
-#Make table of species coefficients in each model
-sp_list<-c("TUVU","MODO","HOSP","OSPR","RTHA",
-           "RWBL","PIWO","RBWO","NOFL","EUST","AMCR")
-
-df.sp<-df.sp.p<-df.sp.se<-as.data.frame(matrix(ncol = 5 , nrow= length(sp_list)))
-
-colnames(df.sp)<-colnames(df.sp.p)<-colnames(df.sp.se)<-names(models3)
-
-
-row.names(df.sp)<-row.names(df.sp.p)<-row.names(df.sp.se)<-sp_list
-
-
-#How do we report coefficient significance...
-for (i in length(models3)) {
   
-  coefs <- as.data.frame(round(coef(summary(models3[[5]])),3))#need to input models manually
-  coefs <- coefs[rownames(coefs)%in%sp_list,]
-  df.sp[,5]<-coefs[,1]
-  df.sp.p[,5]<-coefs[,3]
-  df.sp.se[,5]<-coefs[,2]
+  coefs <- as.data.frame(round(coef(summary(indicators)),3))%>%
+  filter(abs(`t value`)>1.98)
+
   
-}
-write.csv(df.sp,"Outputs/species_coefficients_updated.csv",row.names = T)
-
-
-write.csv(df.sp.p,"Outputs/species_coefficients_signif_updated.csv",row.names = T)
-
-
-write.csv(df.sp.se,"Outputs/species_coefficients_sterror_updated.csv",row.names = T)
-
