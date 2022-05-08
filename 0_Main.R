@@ -4,6 +4,7 @@ library(officer)
 library(flextable)
 #remotes::install_github("rstudio/webshot2")
 #webshot::install_phantomjs()
+library(xtable)
 
 memory.limit(100000)
 
@@ -60,19 +61,33 @@ ggsave("Outputs/Figures/PC1_PC2_loadings_updated.jpeg", width = 6, height = 6, d
 
 #---------------------------------------------------------------------------------------------------
 # plot and save tables
+
+#Table 2.
 pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
-  mutate(across(c(3:11),round,3))
+  dplyr::select(lnSAIDI_Model=Name, R2_conditional, R2_marginal, ICC, AIC_Weight=AIC_wt, Fixed_Effects=Fixed.Effects)%>%
+  mutate(across(-c("lnSAIDI_Model","Fixed_Effects"),round,4),
+         Fixed_Effects=as.character(Fixed_Effects),
+         Model_Hypothesis=case_when(
+           lnSAIDI_Model=="Time and Habitat"~"Null Model (No Species)",
+           lnSAIDI_Model%in%c("Resident Species","Migrant Species","Urban Species", "Forest Species")~"Single Species Model",
+           lnSAIDI_Model%in%c("All Representative Species","All PC","All Species")~"Multi-Species Model")
+         )%>%
+  arrange(desc(AIC_Weight))
+pred_select<-pred_select[c(7,1,2,3,4,5,6)]
   
-tb2<-flextable(pred_select%>%dplyr::select(-c("Model","AICc_wt")))%>%
-  set_header_labels(Name="Model of log(SAIDI)",
+
+#Print for latex
+print(xtable(pred_select, label='tab:Table2', digits=4), type="latex")
+  
+#print as image
+ft<-flextable(pred_select)%>%
+  set_header_labels(Model_Type="Model Hypothesis",
+                    Model="log(SAIDI)~ Model",
                     R2_conditional="R2 Conditional", 
                     R2_marginal="R2 Marginal",
                     ICC="ICC",
-                    RMSE="RMSE",
-                    Sigma="Sigma",
-                    AIC_wt="AIC Weight",
-                    BIC_wt="BIC Weight",
-                    Performance_Score="Performance Score") %>%
+                    AIC_Weight="AIC Weight",
+                    Fixed_Effects="Number of Fixed Effects") %>%
   fontsize(size=12, part='header') %>%
   fontsize(size=11, part='body') %>%
   #font(fontname='Helvetica', part='header') %>%
@@ -85,28 +100,7 @@ save_as_image(tb2, "Outputs/Table2_updated.png")
 
 
 
-species_sub<-read.csv("Outputs/species_subset_models_updated.csv")%>%
-  mutate(across(c(3:11),round,3))
-
-tb3<-flextable(species_sub%>%dplyr::select(-c("Model","AICc_wt")))%>%
-  set_header_labels(Name="Model of log(SAIDI)",
-                    R2_conditional="R2 Conditional", 
-                    R2_marginal="R2 Marginal",
-                    ICC="ICC",
-                    RMSE="RMSE",
-                    Sigma="Sigma",
-                    AIC_wt="AIC Weight",
-                    BIC_wt="BIC Weight",
-                    Performance_Score="Performance Score") %>%
-  fontsize(size=12, part='header') %>%
-  fontsize(size=11, part='body') %>%
-  #font(fontname='Helvetica', part='header') %>%
-  #font(fontname='Helvetica', part='body') %>%
-  align(align="center",part = "all") %>%
-  border_inner_h(border=fp_border(color='#CAD4D1', style='solid', width=0.5)) %>%
-  bg(bg="white",part = "all")
-
-save_as_image(tb3, "Outputs/Table3_updated.png")
+#Table 3.
 
 
 species_coef<-read.csv("Outputs/species_coefficients_updated.csv")%>%
