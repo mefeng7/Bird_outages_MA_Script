@@ -274,8 +274,8 @@ indicators<-lmer(log_saidi~(TUVU*Summer.ind)+(TUVU*Winter.ind)+(TUVU*Forest.ind)
                    (NOFL*Summer.ind)+(NOFL*Winter.ind)+(NOFL*Forest.ind)+(NOFL*Developed.ind)+
                  (EUST*Summer.ind)+(EUST*Winter.ind)+(EUST*Forest.ind)+(EUST*Developed.ind)+
                    (AMCR*Summer.ind)+(AMCR*Winter.ind)+(AMCR*Forest.ind)+(AMCR*Developed.ind)+
-                 year+month+
-                 Barren_Land+Open_Water+Grassland+Forest+
+                 #year+month+
+                 #Barren_Land+Open_Water+Grassland+Forest+
                    (1|actual_city_town),
                data=dp)
 
