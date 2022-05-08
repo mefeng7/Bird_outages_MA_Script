@@ -204,7 +204,7 @@ lmer.mth<-lmer(log_saidi~Migrant+
                  (1|actual_city_town),
                data=dp)
 
-summary(lm.mth)
+summary(lmer.sth)
 
 
 # 8. representative species from Forest PC trend
@@ -242,9 +242,9 @@ models <- list(lmer.sth, lmer.th, lmer.fth,
                lmer.uth, lmer.resth, lmer.mth,
                lmer.pcth,lmer.repth)
 
-names(models)<-c('All.Species_Time_Habitat','Time_Habitat','Forest.Species_Time_Habitat',
-                 'Urban.Species_Time_Habitat','Resident.Species_Time_Habitat','Migrant.Species_Time_Habitat',
-                 'Species.PC_Time_Habitat','All.PC.Trend.Species_Time_Habitat')
+names(models)<-c('All Species','Time and Habitat','Forest Species',
+                 'Urban Species','Resident Species','Migrant Species',
+                 'All PC','All Representative Species')
 
 
 var_compare<-compare_performance(models,rank=T)
