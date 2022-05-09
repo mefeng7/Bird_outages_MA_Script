@@ -100,9 +100,48 @@ lmer.th<-lmer(log_saidi~year+month+
 summary(lm.th)
 
 
+#2. Just habitat
+lm.h<-lm(log_saidi~Barren_Land+Open_Water+Grassland+Forest,
+          data=dp)
 
-  # 2. all species, habitat, and time
-lm.sth<-lm(log_saidi~TUVU+MODO+HOSP+
+lmer.h<-lmer(log_saidi~Barren_Land+Open_Water+Grassland+Forest+
+                (1|actual_city_town),
+              data=dp)
+
+summary(lm.h)
+
+
+# 3. Just time
+lm.t<-lm(log_saidi~year+month,
+          data=dp)
+
+lmer.t<-lmer(log_saidi~year+month+
+                (1|actual_city_town),
+              data=dp)
+
+summary(lm.t)
+
+
+#4. Just species
+lm.s<-lm(log_saidi~TUVU+MODO+HOSP+
+             OSPR+RTHA+RWBL+
+             PIWO+RBWO+NOFL+
+             EUST+AMCR,
+           data=dp)
+
+lmer.s<-lmer(log_saidi~TUVU+MODO+HOSP+
+                 OSPR+RTHA+RWBL+
+                 PIWO+RBWO+NOFL+
+                 EUST+AMCR+
+                 (1|actual_city_town),
+               data=dp)
+
+summary(lm.s)
+
+
+
+# 5. species, habitat, and time (Additive)
+lm.sth.a<-lm(log_saidi~TUVU+MODO+HOSP+
              OSPR+RTHA+RWBL+
              PIWO+RBWO+NOFL+
              EUST+AMCR+
@@ -110,7 +149,7 @@ lm.sth<-lm(log_saidi~TUVU+MODO+HOSP+
              Barren_Land+Open_Water+Grassland+Forest,
              data=dp)
 
-lmer.sth<-lmer(log_saidi~TUVU+MODO+HOSP+
+lmer.sth.a<-lmer(log_saidi~TUVU+MODO+HOSP+
                  OSPR+RTHA+RWBL+
                  PIWO+RBWO+NOFL+
                  EUST+AMCR+
@@ -119,126 +158,345 @@ lmer.sth<-lmer(log_saidi~TUVU+MODO+HOSP+
                  (1|actual_city_town),
                  data=dp)
 
-summary(lm.sth)
+summary(lm.sth.a)
 
 
-
-  # 3. species PCs, habitat, and time 
-lm.pcth<-lm(log_saidi~Dim.1+Dim.2+
+# 6. species, habitat, and time (Interactions)
+lm.sth.i<-lm(log_saidi~(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+
+             (OSPR*Forest)+(RTHA*Forest)+(RWBL*Forest)+
+             (PIWO*Forest)+(RBWO*Forest)+(NOFL*Forest)+
+             (EUST*Forest)+(AMCR*Forest)+
+             (TUVU*month)+(MODO*month)+(HOSP*month)+
+             (OSPR*month)+(RTHA*month)+(RWBL*month)+
+             (PIWO*month)+(RBWO*month)+(NOFL*month)+
+             (EUST*month)+(AMCR*month)+
              year+month+
              Barren_Land+Open_Water+Grassland+Forest,
            data=dp)
 
-lmer.pcth<-lmer(log_saidi~Dim.1+Dim.2+
+lmer.sth.i<-lmer(log_saidi~(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+
+                 (OSPR*Forest)+(RTHA*Forest)+(RWBL*Forest)+
+                 (PIWO*Forest)+(RBWO*Forest)+(NOFL*Forest)+
+                 (EUST*Forest)+(AMCR*Forest)+
+                 (TUVU*month)+(MODO*month)+(HOSP*month)+
+                 (OSPR*month)+(RTHA*month)+(RWBL*month)+
+                 (PIWO*month)+(RBWO*month)+(NOFL*month)+
+                 (EUST*month)+(AMCR*month)+
                  year+month+
                  Barren_Land+Open_Water+Grassland+Forest+
                  (1|actual_city_town),
                data=dp)
 
-summary(lm.pcth)
+summary(lm.sth.i)
 
 
-#Question 2: Do diverse species activity patterns improve SAIDI model performance over using only single species patterns?
-#############################################################################################################################
 
-  # 4. representative species from each PC trend (resident, migrant, forest, and urban)
-lm.repth<-lm(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
+
+# 7. Just species PCs
+lm.pc<-lm(log_saidi~Dim.1+Dim.2,
+            data=dp)
+
+lmer.pc<-lmer(log_saidi~Dim.1+Dim.2+
+                  (1|actual_city_town),
+                data=dp)
+
+summary(lm.pc)
+
+
+# 8. species PCs, habitat, and time (Additive)
+lm.pcth.a<-lm(log_saidi~Dim.1+Dim.2+
               year+month+
               Barren_Land+Open_Water+Grassland+Forest,
             data=dp)
 
-lmer.repth<-lmer(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
+lmer.pcth.a<-lmer(log_saidi~Dim.1+Dim.2+
                   year+month+
                   Barren_Land+Open_Water+Grassland+Forest+
                   (1|actual_city_town),
                 data=dp)
 
-summary(lm.repth)
+summary(lm.pcth.a)
+
+# 9. species PCs, habitat, and time (Interactions)
+lm.pcth.i<-lm(log_saidi~(Dim.1*Forest)+(Dim.2*Forest)+(Dim.1*month)+(Dim.2*month)+
+              year+month+
+              Barren_Land+Open_Water+Grassland+Forest,
+            data=dp)
+
+lmer.pcth.i<-lmer(log_saidi~(Dim.1*Forest)+(Dim.2*Forest)+(Dim.1*month)+(Dim.2*month)+
+                  year+month+
+                  Barren_Land+Open_Water+Grassland+Forest+
+                  (1|actual_city_town),
+                data=dp)
+
+summary(lm.pcth.i)
 
 
-# 5. representative species from Urban PC trend
-lm.uth<-lm(log_saidi~Urban.sp+
+  # 10. representative species from each PC trend (resident, migrant, forest, and urban)
+lm.rep<-lm(log_saidi~Migrant+Resident+Forest.sp+Urban.sp,
+            data=dp)
+
+lmer.rep<-lmer(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
+                  (1|actual_city_town),
+                data=dp)
+
+summary(lm.rep)
+
+
+# 11. representative species, habitat, and time (Additive)
+lm.repth.a<-lm(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
+              year+month+
+              Barren_Land+Open_Water+Grassland+Forest,
+            data=dp)
+
+lmer.repth.a<-lmer(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
+                  year+month+
+                  Barren_Land+Open_Water+Grassland+Forest+
+                  (1|actual_city_town),
+                data=dp)
+
+summary(lm.repth.a)
+
+
+# 12. representative species, habitat, and time (Interactions)
+lm.repth.i<-lm(log_saidi~(Migrant*Forest)+(Resident*Forest)+(Forest.sp*Forest)+(Urban.sp*Forest)+
+              (Migrant*month)+(Resident*month)+(Forest.sp*month)+(Urban.sp*month)+
+              year+month+
+              Barren_Land+Open_Water+Grassland+Forest,
+            data=dp)
+
+lmer.repth.i<-lmer(log_saidi~(Migrant*Forest)+(Resident*Forest)+(Forest.sp*Forest)+(Urban.sp*Forest)+
+                  (Migrant*month)+(Resident*month)+(Forest.sp*month)+(Urban.sp*month)+
+                  year+month+
+                  Barren_Land+Open_Water+Grassland+Forest+
+                  (1|actual_city_town),
+                data=dp)
+
+summary(lm.repth.i)
+
+
+
+#Question 2: Do diverse species activity patterns improve SAIDI model performance over using only single species patterns?
+#############################################################################################################################
+
+#Urban spatial trend
+#######################
+# 13. representative species from Urban PC trend
+lm.u<-lm(log_saidi~Urban.sp,
+           data=dp)
+
+lmer.u<-lmer(log_saidi~Urban.sp+
+                 (1|actual_city_town),
+               data=dp)
+
+summary(lm.u)
+
+# 14. representative species from Urban PC trend, habitat and time (additive)
+lm.uth.a<-lm(log_saidi~Urban.sp+
              year+month+
              Barren_Land+Open_Water+Grassland+Forest,
            data=dp)
 
-lmer.uth<-lmer(log_saidi~Urban.sp+
+lmer.uth.a<-lmer(log_saidi~Urban.sp+
                  year+month+
                  Barren_Land+Open_Water+Grassland+Forest+
                  (1|actual_city_town),
                data=dp)
 
-summary(lm.uth)
+summary(lm.uth.a)
 
-
-# 6. representative species from Resident PC trend
-lm.resth<-lm(log_saidi~Resident+
+# 15. representative species from Urban PC trend, habitat and time (interaction)
+lm.uth.i<-lm(log_saidi~(Urban.sp*Forest)+(Urban.sp*month)+
              year+month+
              Barren_Land+Open_Water+Grassland+Forest,
            data=dp)
 
-lmer.resth<-lmer(log_saidi~Resident+
+lmer.uth.i<-lmer(log_saidi~(Urban.sp*Forest)+(Urban.sp*month)+
                  year+month+
                  Barren_Land+Open_Water+Grassland+Forest+
                  (1|actual_city_town),
                data=dp)
 
-summary(lm.resth)
+summary(lm.uth.i)
 
 
-# 7. representative species from Migrant PC trend
-lm.mth<-lm(log_saidi~Migrant+
-             year+month+
-             Barren_Land+Open_Water+Grassland+Forest,
+
+#Resident temporal trend
+###############################
+# 16. representative species from Resident PC trend
+lm.res<-lm(log_saidi~Resident,
            data=dp)
 
-lmer.mth<-lmer(log_saidi~Migrant+
-                 year+month+
-                 Barren_Land+Open_Water+Grassland+Forest+
+lmer.res<-lmer(log_saidi~Resident+
                  (1|actual_city_town),
                data=dp)
 
-summary(lmer.sth)
+summary(lm.res)
+
+# 17. representative species from Resident PC trend, habitat and time (additive)
+lm.resth.a<-lm(log_saidi~Resident+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.resth.a<-lmer(log_saidi~Resident+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.resth.a)
+
+# 18. representative species from Resident PC trend, habitat and time (interaction)
+lm.resth.i<-lm(log_saidi~(Resident*Forest)+(Resident*month)+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.resth.i<-lmer(log_saidi~(Resident*Forest)+(Resident*month)+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.resth.i)
 
 
-# 8. representative species from Forest PC trend
-lm.fth<-lm(log_saidi~Forest.sp+
-             year+month+
-             Barren_Land+Open_Water+Grassland+Forest,
+#Migratory temporal trend
+###########################
+# 19. representative species from Migrant PC trend
+lm.m<-lm(log_saidi~Migrant,
            data=dp)
 
-lmer.fth<-lmer(log_saidi~Forest.sp+
-                 year+month+
-                 Barren_Land+Open_Water+Grassland+Forest+
+lmer.m<-lmer(log_saidi~Migrant+
                  (1|actual_city_town),
                data=dp)
 
-summary(lm.fth)
+summary(lmer.m)
+
+
+# 20. representative species from Urban PC trend, habitat and time (additive)
+lm.mth.a<-lm(log_saidi~Migrant+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.mth.a<-lmer(log_saidi~Migrant+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.mth.a)
+
+# 21. representative species from Migrant PC trend, habitat and time (interaction)
+lm.mth.i<-lm(log_saidi~(Migrant*Forest)+(Migrant*month)+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.mth.i<-lmer(log_saidi~(Migrant*Forest)+(Migrant*month)+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.mth.i)
+
+
+#Forest spatial trend
+#######################
+# 22. representative species from Forest PC trend
+lm.f<-lm(log_saidi~Forest.sp,
+           data=dp)
+
+lmer.f<-lmer(log_saidi~Forest.sp+
+                 (1|actual_city_town),
+               data=dp)
+
+summary(lm.f)
+
+
+# 23. representative species from Forest PC trend, habitat and time (additive)
+lm.fth.a<-lm(log_saidi~Forest.sp+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.fth.a<-lmer(log_saidi~Forest.sp+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.fth.a)
+
+# 24. representative species from Forest PC trend, habitat and time (interaction)
+lm.fth.i<-lm(log_saidi~(Forest.sp*Forest)+(Forest.sp*month)+
+               year+month+
+               Barren_Land+Open_Water+Grassland+Forest,
+             data=dp)
+
+lmer.fth.i<-lmer(log_saidi~(Forest.sp*Forest)+(Forest.sp*month)+
+                   year+month+
+                   Barren_Land+Open_Water+Grassland+Forest+
+                   (1|actual_city_town),
+                 data=dp)
+
+summary(lm.fth.i)
 
 
 
 #Use a mixed model to account for random effect of town?
 
-anova(lmer.sth,lm.sth)
+anova(lmer.sth.i,lm.sth.i)
 anova(lmer.th,lm.th)
-anova(lmer.fth,lm.fth)
-anova(lmer.uth,lm.uth)
-anova(lmer.resth,lm.resth)
-anova(lmer.mth,lm.mth)
-anova(lmer.pcth,lm.pcth)
-anova(lmer.repth,lm.repth)
+anova(lmer.fth.i,lm.fth.i)
+anova(lmer.uth.i,lm.uth.i)
+anova(lmer.resth.i,lm.resth.i)
+anova(lmer.mth.i,lm.mth.i)
+anova(lmer.pcth.i,lm.pcth.i)
+anova(lmer.repth.i,lm.repth.i)
+
+anova(lmer.sth.a,lm.sth.a)
+anova(lmer.th,lm.th)
+anova(lmer.fth.a,lm.fth.a)
+anova(lmer.uth.a,lm.uth.a)
+anova(lmer.resth.a,lm.resth.a)
+anova(lmer.mth.a,lm.mth.a)
+anova(lmer.pcth.a,lm.pcth.a)
+anova(lmer.repth.a,lm.repth.a)
+
+anova(lmer.s,lm.s)
+anova(lmer.t,lm.t)
+anova(lmer.h,lm.h)
+anova(lmer.f,lm.f)
+anova(lmer.u,lm.u)
+anova(lmer.res,lm.res)
+anova(lmer.m,lm.m)
+anova(lmer.pc,lm.pc)
+anova(lmer.rep,lm.rep)
 #Random effect is significant
 
 
 
 #Compare model performance between models 
-models <- list(lmer.sth, lmer.th, lmer.fth,
-               lmer.uth, lmer.resth, lmer.mth,
-               lmer.pcth,lmer.repth)
+models <- list(lmer.sth.i,lmer.th,lmer.fth.i,
+               lmer.uth.i,lmer.resth.i,lmer.mth.i,
+               lmer.pcth.i,lmer.repth.i,lmer.sth.a,
+               lmer.fth.a,lmer.uth.a,
+               lmer.resth.a,lmer.mth.a,lmer.pcth.a,
+               lmer.repth.a,lmer.s,lmer.t,
+               lmer.h,lmer.f,lmer.u,lmer.res,
+               lmer.m,lmer.pc,lmer.rep)
 
-names(models)<-c('All Species','Time and Habitat','Forest Species',
-                 'Urban Species','Resident Species','Migrant Species',
-                 'All PC','All Representative Species')
+names(models)<-c('All Species, Habitat, and Time (Interaction)','Time and Habitat','Forest Species, Habitat, and Time (Interaction)',
+                 'Urban Species, Habitat, and Time (Interaction)','Resident Species, Habitat, and Time (Interaction)','Migrant Species, Habitat, and Time (Interaction)',
+                 'All PC, Habitat, and Time (Interaction)','All Representative Species, Habitat, and Time (Interaction)','All Species, Habitat, and Time (Additive)',
+                  'Forest Species, Habitat, and Time (Additive)',
+                 'Urban Species, Habitat, and Time (Additive)','Resident Species, Habitat, and Time (Additive)','Migrant Species, Habitat, and Time (Additive)',
+                 'All PC, Habitat, and Time (Additive)','All Representative Species, Habitat, and Time (Additive)','All Species',
+                 'Time',"Habitat","Forest Species","Urban Species","Resident Species","Migrant Species","All PC","All Representative Species")
 
 
 var_compare<-compare_performance(models,rank=T)
@@ -274,8 +532,9 @@ indicators<-lmer(log_saidi~(TUVU*Summer.ind)+(TUVU*Winter.ind)+(TUVU*Forest.ind)
                    (NOFL*Summer.ind)+(NOFL*Winter.ind)+(NOFL*Forest.ind)+(NOFL*Developed.ind)+
                  (EUST*Summer.ind)+(EUST*Winter.ind)+(EUST*Forest.ind)+(EUST*Developed.ind)+
                    (AMCR*Summer.ind)+(AMCR*Winter.ind)+(AMCR*Forest.ind)+(AMCR*Developed.ind)+
-                 #year+month+
-                 #Barren_Land+Open_Water+Grassland+Forest+
+                 year+
+                 month+
+                 Barren_Land+Open_Water+Grassland+Forest+
                    (1|actual_city_town),
                data=dp)
 

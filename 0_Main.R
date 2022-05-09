@@ -60,45 +60,42 @@ ggsave("Outputs/Figures/PC1_PC2_loadings_updated.jpeg", width = 6, height = 6, d
 
 #Table 2.
 pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
-  dplyr::select(lnSAIDI_Model=Name, R2_conditional, R2_marginal, ICC, AIC_Weight=AIC_wt, Fixed_Effects=Fixed.Effects)%>%
+  dplyr::select(lnSAIDI_Model=Name, R2_conditional, ICC, BIC_Weight=BIC_wt,Fixed_Effects=Fixed.Effects)%>%
   mutate(across(-c("lnSAIDI_Model","Fixed_Effects"),round,4),
          Fixed_Effects=as.character(Fixed_Effects),
          Model_Hypothesis=case_when(
-           lnSAIDI_Model=="Time and Habitat"~"Null Model (No Species)",
-           lnSAIDI_Model%in%c("Resident Species","Migrant Species","Urban Species", "Forest Species")~"Single Species Model",
-           lnSAIDI_Model%in%c("All Representative Species","All PC","All Species")~"Multi-Species Model")
+           lnSAIDI_Model%in%c("Time and Habitat","Habitat","Time")~"Null Model (No Species)",
+           lnSAIDI_Model%in%c("Resident Species","Migrant Species","Urban Species", "Forest Species",
+                              'Forest Species, Habitat, and Time (Interaction)',
+                              'Urban Species, Habitat, and Time (Interaction)',
+                              'Resident Species, Habitat, and Time (Interaction)',
+                              'Migrant Species, Habitat, and Time (Interaction)',
+                              'Forest Species, Habitat, and Time (Additive)',
+                              'Urban Species, Habitat, and Time (Additive)',
+                              'Resident Species, Habitat, and Time (Additive)',
+                              'Migrant Species, Habitat, and Time (Additive)')~"Single Species Model",
+           lnSAIDI_Model%in%c("All Representative Species","All PC","All Species",
+                              'All PC, Habitat, and Time (Additive)',
+                              'All Representative Species, Habitat, and Time (Additive)',
+                              'All Species, Habitat, and Time (Additive)',
+                              'All Species, Habitat, and Time (Interaction)',
+                              'All PC, Habitat, and Time (Interaction)',
+                              'All Representative Species, Habitat, and Time (Interaction)')~"Multi-Species Model")
          )%>%
-  arrange(desc(AIC_Weight))
-pred_select<-pred_select[c(7,1,2,3,4,5,6)]
+  arrange(desc(BIC_Weight))
+pred_select<-pred_select[c(6,1,2,3,4,5)]
   
 
 #Print for latex
 print(xtable(pred_select, label='tab:Table2', digits=4), type="latex")
   
 
+c('All Species, Habitat, and Time (Interaction)','Time and Habitat','Forest Species, Habitat, and Time (Interaction)',
+  'Urban Species, Habitat, and Time (Interaction)','Resident Species, Habitat, and Time (Interaction)','Migrant Species, Habitat, and Time (Interaction)',
+  'All PC, Habitat, and Time (Interaction)','All Representative Species, Habitat, and Time (Interaction)','All Species, Habitat, and Time (Additive)',
+  'Forest Species, Habitat, and Time (Additive)',
+  'Urban Species, Habitat, and Time (Additive)','Resident Species, Habitat, and Time (Additive)','Migrant Species, Habitat, and Time (Additive)',
+  'All PC, Habitat, and Time (Additive)','All Representative Species, Habitat, and Time (Additive)','All Species',
+  'Time',"Habitat","Forest Species","Urban Species","Resident Species","Migrant Species","All PC","All Representative Species")
 
-#Table 3.
 
-
-species_coef<-read.csv("Outputs/species_coefficients_updated.csv")%>%
-  mutate(across(c(3:11),round,3))
-
-tb4<-flextable(species_coef%>%dplyr::select(-c("Model","AICc_wt")))%>%
-  set_header_labels(Name="Model of log(SAIDI)",
-                    R2_conditional="R2 Conditional", 
-                    R2_marginal="R2 Marginal",
-                    ICC="ICC",
-                    RMSE="RMSE",
-                    Sigma="Sigma",
-                    AIC_wt="AIC Weight",
-                    BIC_wt="BIC Weight",
-                    Performance_Score="Performance Score") %>%
-  fontsize(size=12, part='header') %>%
-  fontsize(size=11, part='body') %>%
-  #font(fontname='Helvetica', part='header') %>%
-  #font(fontname='Helvetica', part='body') %>%
-  align(align="center",part = "all") %>%
-  border_inner_h(border=fp_border(color='#CAD4D1', style='solid', width=0.5)) %>%
-  bg(bg="white",part = "all")
-
-save_as_image(tb4, "Outputs/Table4_updated.png")
