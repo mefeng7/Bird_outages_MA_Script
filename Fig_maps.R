@@ -18,7 +18,7 @@ df<-dp_outs_towns%>%
   ungroup()
 
 towns_birds<-left_join(ma_towns,df,by=c("city"="actual_city_town"))%>%
-  pivot_longer(toupper(name_list$sp_file[-16]),names_to="Species",values_to="DP")
+  pivot_longer(toupper(name_list$sp_file[-16]),names_to="Species",values_to="DR")
 
 #plot species grouped by PC2 (Assumed to be grouping by spatial patterns)
 s1<-row.names(vectors[vectors$PC2>=0.025,])
@@ -28,7 +28,7 @@ s3<-row.names(vectors[vectors$PC2<=-0.2,])
 #Group 1
 p1<-ggplot() +
   #specify Bird Species
-  geom_sf(data = towns_birds%>%filter(Species%in%s1), aes(geometry=geometry,fill = DP)) +
+  geom_sf(data = towns_birds%>%filter(Species%in%s1), aes(geometry=geometry,fill = DR)) +
   scale_fill_viridis_c(option = "plasma",
                        na.value = "grey60")+
   facet_wrap(~Species)+
@@ -47,7 +47,7 @@ p1<-ggplot() +
 #Group2
 p2<-ggplot() +
   #specify Bird Species
-  geom_sf(data = towns_birds%>%filter(Species%in%s2), aes(geometry=geometry,fill = DP)) +
+  geom_sf(data = towns_birds%>%filter(Species%in%s2), aes(geometry=geometry,fill = DR)) +
   scale_fill_viridis_c(option = "plasma",
                        na.value = "grey60")+
   facet_wrap(~Species,ncol = 1)+
@@ -66,7 +66,7 @@ p2<-ggplot() +
 #Group3
 p3<-ggplot() +
   #specify Bird Species
-  geom_sf(data = towns_birds%>%filter(Species%in%s3), aes(geometry=geometry,fill = DP)) +
+  geom_sf(data = towns_birds%>%filter(Species%in%s3), aes(geometry=geometry,fill = DR)) +
   scale_fill_viridis_c(option = "plasma",
                        na.value = "grey60")+
   facet_wrap(~Species,ncol = 2)+
@@ -85,7 +85,7 @@ p3<-ggplot() +
 
 p_map<-ggplot() +
   #specify Bird Species
-  geom_sf(data = towns_birds%>%filter(Species%in%c("PIWO","NOFL")), aes(geometry=geometry,fill = DP)) +
+  geom_sf(data = towns_birds%>%filter(Species%in%c("PIWO","NOFL")), aes(geometry=geometry,fill = DR)) +
   scale_fill_viridis_c(option = "plasma",
                        na.value = "grey60")+
   facet_wrap(~Species,ncol = 2)+

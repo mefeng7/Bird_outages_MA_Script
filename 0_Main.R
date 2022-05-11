@@ -49,7 +49,7 @@ ggsave("Outputs/Figures/SpeciesMaps_contrast_updated.jpeg", width = 6, height = 
 
 g4 <- (p4 / p5 / p6) 
 g4
-ggsave("Outputs/Figures/SpeciesTS_groups_updated.jpeg", width = 6, height = 6.5, dpi = "retina")
+ggsave("Outputs/Figures/SpeciesTS_groups_updated.jpeg", width = 6, height = 7, dpi = "retina")
 
 p7
 ggsave("Outputs/Figures/PC1_PC2_loadings_updated.jpeg", width = 6, height = 6, dpi = "retina")
@@ -60,11 +60,11 @@ ggsave("Outputs/Figures/PC1_PC2_loadings_updated.jpeg", width = 6, height = 6, d
 
 #Table 2.
 pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
-  dplyr::select(lnSAIDI_Model=Name, R2_conditional, ICC, BIC_Weight=BIC_wt,Fixed_Effects=Fixed.Effects)%>%
+  dplyr::select(lnSAIDI_Model=Name, R2_conditional, R2_marginal, AIC_Weight=AIC_wt,BIC_Weight=BIC_wt,Fixed_Effects=Fixed.Effects)%>%
   mutate(across(-c("lnSAIDI_Model","Fixed_Effects"),round,4),
          Fixed_Effects=as.character(Fixed_Effects),
          Model_Hypothesis=case_when(
-           lnSAIDI_Model%in%c("Time and Habitat","Habitat","Time")~"Null Model (No Species)",
+           lnSAIDI_Model%in%c("Time and Habitat","Habitat","Time")~"Null Model (No Bird Activity)",
            lnSAIDI_Model%in%c("Resident Species","Migrant Species","Urban Species", "Forest Species",
                               'Forest Species, Habitat, and Time (Interaction)',
                               'Urban Species, Habitat, and Time (Interaction)',
@@ -73,17 +73,17 @@ pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
                               'Forest Species, Habitat, and Time (Additive)',
                               'Urban Species, Habitat, and Time (Additive)',
                               'Resident Species, Habitat, and Time (Additive)',
-                              'Migrant Species, Habitat, and Time (Additive)')~"Single Species Model",
+                              'Migrant Species, Habitat, and Time (Additive)')~"Single-Pattern Model",
            lnSAIDI_Model%in%c("All Representative Species","All PC","All Species",
                               'All PC, Habitat, and Time (Additive)',
                               'All Representative Species, Habitat, and Time (Additive)',
                               'All Species, Habitat, and Time (Additive)',
                               'All Species, Habitat, and Time (Interaction)',
                               'All PC, Habitat, and Time (Interaction)',
-                              'All Representative Species, Habitat, and Time (Interaction)')~"Multi-Species Model")
+                              'All Representative Species, Habitat, and Time (Interaction)')~"Multi-Pattern Model")
          )%>%
   arrange(desc(BIC_Weight))
-pred_select<-pred_select[c(6,1,2,3,4,5)]
+pred_select<-pred_select[c(7,1,2,3,4,5,6)]
   
 
 #Print for latex
