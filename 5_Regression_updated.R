@@ -92,9 +92,9 @@ lm.th<-lm(log_saidi~year+month+
              Barren_Land+Open_Water+Grassland+Forest,
            data=dp)
 
-lmer.th<-lmer(log_saidi~year+month+
+lmer.th<-lmer(log_saidi~month+#year+
                  Barren_Land+Open_Water+Grassland+Forest+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.th)
@@ -105,7 +105,7 @@ lm.h<-lm(log_saidi~Barren_Land+Open_Water+Grassland+Forest,
           data=dp)
 
 lmer.h<-lmer(log_saidi~Barren_Land+Open_Water+Grassland+Forest+
-                (1|actual_city_town),
+                (1|actual_city_town)+(1|year),
               data=dp)
 
 summary(lm.h)
@@ -115,8 +115,8 @@ summary(lm.h)
 lm.t<-lm(log_saidi~year+month,
           data=dp)
 
-lmer.t<-lmer(log_saidi~year+month+
-                (1|actual_city_town),
+lmer.t<-lmer(log_saidi~month+#year+
+                (1|actual_city_town)+(1|year),
               data=dp)
 
 summary(lm.t)
@@ -133,7 +133,7 @@ lmer.s<-lmer(log_saidi~TUVU+MODO+HOSP+
                  OSPR+RTHA+RWBL+
                  PIWO+RBWO+NOFL+
                  EUST+AMCR+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.s)
@@ -153,12 +153,13 @@ lmer.sth.a<-lmer(log_saidi~TUVU+MODO+HOSP+
                  OSPR+RTHA+RWBL+
                  PIWO+RBWO+NOFL+
                  EUST+AMCR+
-                 year+month+
+                 #year+
+                   month+
                  Barren_Land+Open_Water+Grassland+Forest+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                  data=dp)
 
-summary(lm.sth.a)
+summary(lmer.sth.a)
 
 
 # 6. species, habitat, and time (Interactions)
@@ -182,9 +183,10 @@ lmer.sth.i<-lmer(log_saidi~(TUVU*Forest)+(MODO*Forest)+(HOSP*Forest)+
                  (OSPR*month)+(RTHA*month)+(RWBL*month)+
                  (PIWO*month)+(RBWO*month)+(NOFL*month)+
                  (EUST*month)+(AMCR*month)+
-                 year+month+
+                 #year+
+                   month+
                  Barren_Land+Open_Water+Grassland+Forest+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.sth.i)
@@ -197,7 +199,7 @@ lm.pc<-lm(log_saidi~Dim.1+Dim.2,
             data=dp)
 
 lmer.pc<-lmer(log_saidi~Dim.1+Dim.2+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.pc)
@@ -210,9 +212,10 @@ lm.pcth.a<-lm(log_saidi~Dim.1+Dim.2+
             data=dp)
 
 lmer.pcth.a<-lmer(log_saidi~Dim.1+Dim.2+
-                  year+month+
+                  #year+
+                    month+
                   Barren_Land+Open_Water+Grassland+Forest+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.pcth.a)
@@ -224,9 +227,10 @@ lm.pcth.i<-lm(log_saidi~(Dim.1*Forest)+(Dim.2*Forest)+(Dim.1*month)+(Dim.2*month
             data=dp)
 
 lmer.pcth.i<-lmer(log_saidi~(Dim.1*Forest)+(Dim.2*Forest)+(Dim.1*month)+(Dim.2*month)+
-                  year+month+
+                  #year+
+                    month+
                   Barren_Land+Open_Water+Grassland+Forest+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.pcth.i)
@@ -237,7 +241,7 @@ lm.rep<-lm(log_saidi~Migrant+Resident+Forest.sp+Urban.sp,
             data=dp)
 
 lmer.rep<-lmer(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.rep)
@@ -250,9 +254,10 @@ lm.repth.a<-lm(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
             data=dp)
 
 lmer.repth.a<-lmer(log_saidi~Migrant+Resident+Forest.sp+Urban.sp+
-                  year+month+
+                  #year+
+                    month+
                   Barren_Land+Open_Water+Grassland+Forest+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.repth.a)
@@ -267,9 +272,10 @@ lm.repth.i<-lm(log_saidi~(Migrant*Forest)+(Resident*Forest)+(Forest.sp*Forest)+(
 
 lmer.repth.i<-lmer(log_saidi~(Migrant*Forest)+(Resident*Forest)+(Forest.sp*Forest)+(Urban.sp*Forest)+
                   (Migrant*month)+(Resident*month)+(Forest.sp*month)+(Urban.sp*month)+
-                  year+month+
+                  #year+
+                    month+
                   Barren_Land+Open_Water+Grassland+Forest+
-                  (1|actual_city_town),
+                  (1|actual_city_town)+(1|year),
                 data=dp)
 
 summary(lm.repth.i)
@@ -286,7 +292,7 @@ lm.u<-lm(log_saidi~Urban.sp,
            data=dp)
 
 lmer.u<-lmer(log_saidi~Urban.sp+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.u)
@@ -298,9 +304,10 @@ lm.uth.a<-lm(log_saidi~Urban.sp+
            data=dp)
 
 lmer.uth.a<-lmer(log_saidi~Urban.sp+
-                 year+month+
+                 #year+
+                   month+
                  Barren_Land+Open_Water+Grassland+Forest+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.uth.a)
@@ -312,9 +319,10 @@ lm.uth.i<-lm(log_saidi~(Urban.sp*Forest)+(Urban.sp*month)+
            data=dp)
 
 lmer.uth.i<-lmer(log_saidi~(Urban.sp*Forest)+(Urban.sp*month)+
-                 year+month+
+                 #year+
+                   month+
                  Barren_Land+Open_Water+Grassland+Forest+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.uth.i)
@@ -328,7 +336,7 @@ lm.res<-lm(log_saidi~Resident,
            data=dp)
 
 lmer.res<-lmer(log_saidi~Resident+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.res)
@@ -340,9 +348,10 @@ lm.resth.a<-lm(log_saidi~Resident+
              data=dp)
 
 lmer.resth.a<-lmer(log_saidi~Resident+
-                   year+month+
+                   #year+
+                     month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.resth.a)
@@ -354,9 +363,10 @@ lm.resth.i<-lm(log_saidi~(Resident*Forest)+(Resident*month)+
              data=dp)
 
 lmer.resth.i<-lmer(log_saidi~(Resident*Forest)+(Resident*month)+
-                   year+month+
+                   #year+
+                     month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.resth.i)
@@ -369,7 +379,7 @@ lm.m<-lm(log_saidi~Migrant,
            data=dp)
 
 lmer.m<-lmer(log_saidi~Migrant+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lmer.m)
@@ -382,9 +392,10 @@ lm.mth.a<-lm(log_saidi~Migrant+
              data=dp)
 
 lmer.mth.a<-lmer(log_saidi~Migrant+
-                   year+month+
+                   #year+
+                   month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.mth.a)
@@ -396,9 +407,10 @@ lm.mth.i<-lm(log_saidi~(Migrant*Forest)+(Migrant*month)+
              data=dp)
 
 lmer.mth.i<-lmer(log_saidi~(Migrant*Forest)+(Migrant*month)+
-                   year+month+
+                   #year+
+                   month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.mth.i)
@@ -411,7 +423,7 @@ lm.f<-lm(log_saidi~Forest.sp,
            data=dp)
 
 lmer.f<-lmer(log_saidi~Forest.sp+
-                 (1|actual_city_town),
+                 (1|actual_city_town)+(1|year),
                data=dp)
 
 summary(lm.f)
@@ -424,9 +436,10 @@ lm.fth.a<-lm(log_saidi~Forest.sp+
              data=dp)
 
 lmer.fth.a<-lmer(log_saidi~Forest.sp+
-                   year+month+
+                  # year+
+                   month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.fth.a)
@@ -438,9 +451,10 @@ lm.fth.i<-lm(log_saidi~(Forest.sp*Forest)+(Forest.sp*month)+
              data=dp)
 
 lmer.fth.i<-lmer(log_saidi~(Forest.sp*Forest)+(Forest.sp*month)+
-                   year+month+
+                   #year+
+                   month+
                    Barren_Land+Open_Water+Grassland+Forest+
-                   (1|actual_city_town),
+                   (1|actual_city_town)+(1|year),
                  data=dp)
 
 summary(lm.fth.i)
