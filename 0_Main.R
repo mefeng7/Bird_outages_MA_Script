@@ -60,7 +60,7 @@ ggsave("Outputs/Figures/PC1_PC2_loadings_updated.jpeg", width = 6, height = 6, d
 
 #Table 2.
 pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
-  dplyr::select(lnSAIDI_Model=Name, R2_conditional, R2_marginal, AIC_Weight=AIC_wt,BIC_Weight=BIC_wt,Fixed_Effects=Fixed.Effects)%>%
+  dplyr::select(lnSAIDI_Model=Name, R2_conditional, R2_marginal, AIC_Weight=AIC_wt,Fixed_Effects=Fixed.Effects)%>%
   mutate(across(-c("lnSAIDI_Model","Fixed_Effects"),round,4),
          Fixed_Effects=as.character(Fixed_Effects),
          Model_Hypothesis=case_when(
@@ -82,20 +82,10 @@ pred_select<-read.csv("Outputs/predictor_selection_models_updated.csv")%>%
                               'All PC, Habitat, and Time (Interaction)',
                               'All Representative Species, Habitat, and Time (Interaction)')~"Multi-Pattern Model")
          )%>%
-  arrange(desc(BIC_Weight))
-pred_select<-pred_select[c(7,1,2,3,4,5,6)]
+  arrange(desc(AIC_Weight))
+pred_select<-pred_select[c(6,1,2,3,4,5)]
   
 
 #Print for latex
 print(xtable(pred_select, label='tab:Table2', digits=4), type="latex")
-  
-
-c('All Species, Habitat, and Time (Interaction)','Time and Habitat','Forest Species, Habitat, and Time (Interaction)',
-  'Urban Species, Habitat, and Time (Interaction)','Resident Species, Habitat, and Time (Interaction)','Migrant Species, Habitat, and Time (Interaction)',
-  'All PC, Habitat, and Time (Interaction)','All Representative Species, Habitat, and Time (Interaction)','All Species, Habitat, and Time (Additive)',
-  'Forest Species, Habitat, and Time (Additive)',
-  'Urban Species, Habitat, and Time (Additive)','Resident Species, Habitat, and Time (Additive)','Migrant Species, Habitat, and Time (Additive)',
-  'All PC, Habitat, and Time (Additive)','All Representative Species, Habitat, and Time (Additive)','All Species',
-  'Time',"Habitat","Forest Species","Urban Species","Resident Species","Migrant Species","All PC","All Representative Species")
-
 
